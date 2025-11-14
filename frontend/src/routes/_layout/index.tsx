@@ -49,11 +49,14 @@ function Dashboard() {
   const handleOrdersSelected = (orderIds: number[]) => {
     setSelectedOrderIds(orderIds)
 
-    toaster.create({
-      title: "Loading orders",
-      description: `Fetching ${orderIds.length} order${orderIds.length > 1 ? "s" : ""} from MIRA...`,
-      type: "info",
-    })
+    // Only show toast if there are orders to load
+    if (orderIds.length > 0) {
+      toaster.create({
+        title: "Loading orders",
+        description: `Fetching ${orderIds.length} order${orderIds.length > 1 ? "s" : ""} from MIRA...`,
+        type: "info",
+      })
+    }
   }
 
   // Show error toast if query fails

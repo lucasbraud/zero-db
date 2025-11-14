@@ -62,10 +62,14 @@ export function OrderSelector({
       return
     }
 
-    // Add order
-    setOrderIds([...orderIds, orderId])
+    // Add order and immediately load it
+    const updatedOrderIds = [...orderIds, orderId]
+    setOrderIds(updatedOrderIds)
     setInputValue("")
     setError("")
+
+    // Immediately notify parent to load the order
+    onOrdersSelected(updatedOrderIds)
   }
 
   const handleRemoveOrder = (orderId: number) => {
@@ -80,14 +84,6 @@ export function OrderSelector({
     if (e.key === "Enter") {
       handleAddOrder()
     }
-  }
-
-  const handleLoadOrders = () => {
-    if (orderIds.length === 0) {
-      setError("Please add at least one order ID")
-      return
-    }
-    onOrdersSelected(orderIds)
   }
 
   return (
@@ -156,17 +152,6 @@ export function OrderSelector({
               </Stack>
             </Box>
           )}
-
-          {/* Load Button */}
-          <Button
-            onClick={handleLoadOrders}
-            colorPalette="green"
-            size="lg"
-            disabled={orderIds.length === 0}
-            width="full"
-          >
-            Load {orderIds.length} Order{orderIds.length !== 1 ? "s" : ""}
-          </Button>
         </Stack>
       </Card.Body>
     </Card.Root>
