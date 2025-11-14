@@ -21,6 +21,14 @@ dependencies = [
     "pydantic-settings<3.0.0,>=2.2.1",
     "sentry-sdk[fastapi]<2.0.0,>=1.40.6",
     "pyjwt<3.0.0,>=2.8.0",
+    "pillow<11.0.0,>=10.0.0",
+    # MIRA database integration (Timofey's packages)
+    "api-auth @ git+ssh://git@gitlab.com/enlightra/mira/authentication/api-auth.git",
+    "api-abstraction @ git+ssh://git@gitlab.com/enlightra/mira/packages/api-abstraction.git",
+    # Dependencies for api-auth and api-abstraction (not declared in their pyproject.toml)
+    "pandas<3.0.0,>=2.0.0",
+    "requests<3.0.0,>=2.31.0",
+    "plotly<6.0.0,>=5.0.0",
 ]
 
 [tool.uv]
@@ -36,6 +44,9 @@ dev-dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.mypy]
 strict = true

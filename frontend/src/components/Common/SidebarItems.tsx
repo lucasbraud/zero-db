@@ -31,7 +31,12 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
     : items
 
   const listItems = finalItems.map(({ icon, title, path }) => (
-    <RouterLink key={title} to={path} onClick={onClose}>
+    <RouterLink
+      key={title}
+      to={path}
+      onClick={onClose}
+      search={path === "/" ? (prev: any) => prev : undefined}
+    >
       <Flex
         gap={4}
         px={4}

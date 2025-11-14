@@ -20,7 +20,7 @@ export const system = createSystem(defaultConfig, {
     tokens: {
       colors: {
         ui: {
-          main: { value: "#009688" },
+          main: { value: "#FF9966" }, // Light orange for Zero-DB branding
         },
       },
     },

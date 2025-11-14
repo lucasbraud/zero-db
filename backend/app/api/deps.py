@@ -12,6 +12,7 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models import TokenPayload, User
+from app.services.mira_client_v2 import MIRAClient
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -55,3 +56,31 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
             status_code=403, detail="The user doesn't have enough privileges"
         )
     return current_user
+
+
+# MIRA client dependency with singleton pattern
+_mira_client: MIRAClient | None = None
+
+
+async def get_mira_client() -> Generator[MIRAClient, None, None]:
+    """
+    Get MIRA client instance (singleton pattern).
+
+    Raises:
+        HTTPException: If MIRA is not configured
+    """
+    global _mira_client
+
+    if not settings.mira_enabled:
+        raise HTTPException(
+            status_code=503,
+            detail="MIRA integration is not configured. Please set MIRA_CLIENT_ID and MIRA_CLIENT_SECRET.",
+        )
+
+    if _mira_client is None:
+        _mira_client = MIRAClient()
+
+    yield _mira_client
+
+
+MIRAClientDep = Annotated[MIRAClient, Depends(get_mira_client)]

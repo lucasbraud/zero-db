@@ -55,6 +55,134 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const DeviceGeometrySchema = {
+    properties: {
+        gap_um: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Gap Um'
+        },
+        bus_width_um: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Bus Width Um'
+        },
+        coupling_length_um: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Coupling Length Um'
+        },
+        ring_radius_um: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Ring Radius Um'
+        }
+    },
+    type: 'object',
+    title: 'DeviceGeometry',
+    description: 'Device geometry parameters.'
+} as const;
+
+export const DevicePositionSchema = {
+    properties: {
+        position_x_um: {
+            type: 'number',
+            title: 'Position X Um'
+        },
+        position_y_um: {
+            type: 'number',
+            title: 'Position Y Um'
+        },
+        position_z_um: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Position Z Um'
+        }
+    },
+    type: 'object',
+    required: ['position_x_um', 'position_y_um'],
+    title: 'DevicePosition',
+    description: 'Device port position in micrometers.'
+} as const;
+
+export const DeviceWithPictureSchema = {
+    properties: {
+        comb_placed_id: {
+            type: 'integer',
+            title: 'Comb Placed Id'
+        },
+        waveguide_name: {
+            type: 'string',
+            title: 'Waveguide Name'
+        },
+        devices_set_connector_id: {
+            type: 'integer',
+            title: 'Devices Set Connector Id'
+        },
+        input_port_position: {
+            '$ref': '#/components/schemas/DevicePosition'
+        },
+        output_port_position: {
+            '$ref': '#/components/schemas/DevicePosition'
+        },
+        geometry: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/DeviceGeometry'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        picture_url: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Picture Url'
+        }
+    },
+    type: 'object',
+    required: ['comb_placed_id', 'waveguide_name', 'devices_set_connector_id', 'input_port_position', 'output_port_position'],
+    title: 'DeviceWithPicture',
+    description: 'Device with picture URL.'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
@@ -182,6 +310,35 @@ export const ItemsPublicSchema = {
     title: 'ItemsPublic'
 } as const;
 
+export const MeasurementParametersSchema = {
+    properties: {
+        laser_power_db: {
+            type: 'number',
+            title: 'Laser Power Db'
+        },
+        sweep_speed: {
+            type: 'integer',
+            title: 'Sweep Speed'
+        },
+        start_wl_nm: {
+            type: 'number',
+            title: 'Start Wl Nm'
+        },
+        stop_wl_nm: {
+            type: 'number',
+            title: 'Stop Wl Nm'
+        },
+        resolution_nm: {
+            type: 'number',
+            title: 'Resolution Nm'
+        }
+    },
+    type: 'object',
+    required: ['laser_power_db', 'sweep_speed', 'start_wl_nm', 'stop_wl_nm', 'resolution_nm'],
+    title: 'MeasurementParameters',
+    description: 'Measurement configuration parameters.'
+} as const;
+
 export const MessageSchema = {
     properties: {
         message: {
@@ -210,6 +367,69 @@ export const NewPasswordSchema = {
     type: 'object',
     required: ['token', 'new_password'],
     title: 'NewPassword'
+} as const;
+
+export const OrderBulkRequestSchema = {
+    properties: {
+        order_ids: {
+            items: {
+                type: 'integer'
+            },
+            type: 'array',
+            maxItems: 4,
+            minItems: 1,
+            title: 'Order Ids'
+        }
+    },
+    type: 'object',
+    required: ['order_ids'],
+    title: 'OrderBulkRequest',
+    description: 'Request for multiple orders (multi-chip measurements).'
+} as const;
+
+export const OrderInfoResponseSchema = {
+    properties: {
+        order_id: {
+            type: 'integer',
+            title: 'Order Id'
+        },
+        order_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Order Name'
+        },
+        devices: {
+            items: {
+                '$ref': '#/components/schemas/DeviceWithPicture'
+            },
+            type: 'array',
+            title: 'Devices'
+        },
+        measurement_parameters: {
+            '$ref': '#/components/schemas/MeasurementParameters'
+        },
+        calibrated_setup_id: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Calibrated Setup Id'
+        }
+    },
+    type: 'object',
+    required: ['order_id', 'devices', 'measurement_parameters'],
+    title: 'OrderInfoResponse',
+    description: 'Order info response with picture URLs.'
 } as const;
 
 export const PrivateUserCreateSchema = {

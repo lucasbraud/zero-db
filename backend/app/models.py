@@ -97,6 +97,81 @@ class Message(SQLModel):
     message: str
 
 
+# MIRA Database Models
+# These are not database tables, but Pydantic models for API I/O
+
+
+class DevicePosition(SQLModel):
+    """Device port position in micrometers."""
+
+    position_x_um: float
+    position_y_um: float
+    position_z_um: float | None = None
+
+
+class DeviceGeometry(SQLModel):
+    """Device geometry parameters."""
+
+    gap_um: float | None = None
+    bus_width_um: float | None = None
+    coupling_length_um: float | None = None
+    ring_radius_um: float | None = None
+    # Add more geometry fields as needed
+
+
+class Device(SQLModel):
+    """Device information from MIRA order."""
+
+    comb_placed_id: int
+    waveguide_name: str
+    devices_set_connector_id: int
+    input_port_position: DevicePosition
+    output_port_position: DevicePosition
+    geometry: DeviceGeometry | None = None
+
+
+class DeviceWithPicture(Device):
+    """Device with picture URL."""
+
+    picture_url: str | None = None
+
+
+class MeasurementParameters(SQLModel):
+    """Measurement configuration parameters."""
+
+    laser_power_db: float
+    sweep_speed: int
+    start_wl_nm: float
+    stop_wl_nm: float
+    resolution_nm: float
+
+
+class OrderInfo(SQLModel):
+    """Order information from MIRA."""
+
+    order_id: int
+    order_name: str | None = None
+    devices: list[Device]
+    measurement_parameters: MeasurementParameters
+    calibrated_setup_id: int | None = None
+
+
+class OrderInfoResponse(SQLModel):
+    """Order info response with picture URLs."""
+
+    order_id: int
+    order_name: str | None = None
+    devices: list[DeviceWithPicture]
+    measurement_parameters: MeasurementParameters
+    calibrated_setup_id: int | None = None
+
+
+class OrderBulkRequest(SQLModel):
+    """Request for multiple orders (multi-chip measurements)."""
+
+    order_ids: list[int] = Field(min_length=1, max_length=4)
+
+
 # JSON payload containing access token
 class Token(SQLModel):
     access_token: str

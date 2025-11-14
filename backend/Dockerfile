@@ -20,11 +20,19 @@ ENV UV_COMPILE_BYTECODE=1
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#caching
 ENV UV_LINK_MODE=copy
 
+# Install git for fetching private dependencies
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+# Configure git to skip host key verification for GitLab (Docker build only)
+RUN mkdir -p -m 0700 ~/.ssh && \
+    ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+
 # Install dependencies
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=ssh \
     uv sync --frozen --no-install-project
 
 ENV PYTHONPATH=/app

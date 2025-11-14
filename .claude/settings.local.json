@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch",
+      "Bash(uv sync)",
+      "Bash(cmd /c \"uv sync\")",
+      "Bash(powershell -Command:*)",
+      "Bash(.venv/Scripts/python:*)",
+      "Bash(python:*)",
+      "Bash(tree:*)",
+      "Bash(./scripts/generate-client.sh:*)",
+      "Bash(bash:*)",
+      "Bash(npm run generate-client:*)",
+      "Bash(docker compose:*)",
+      "Bash(chmod:*)",
+      "Bash(uv pip:*)",
+      "Bash(source .venv/bin/activate)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

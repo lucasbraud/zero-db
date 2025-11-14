@@ -85,6 +85,9 @@ services:
       SMTP_PORT: "1025"
       SMTP_TLS: "false"
       EMAILS_FROM_EMAIL: "noreply@example.com"
+      # MIRA Integration
+      DBMS_ADDRESS: "https://mira.enlightra.com"
+      AUTH_SERVICE_CLIENT_SECRET: "${AUTH_SERVICE_CLIENT_SECRET}"
 
   mailcatcher:
     image: schickling/mailcatcher

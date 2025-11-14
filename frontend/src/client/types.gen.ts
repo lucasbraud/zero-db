@@ -9,6 +9,38 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+/**
+ * Device geometry parameters.
+ */
+export type DeviceGeometry = {
+    gap_um?: (number | null);
+    bus_width_um?: (number | null);
+    coupling_length_um?: (number | null);
+    ring_radius_um?: (number | null);
+};
+
+/**
+ * Device port position in micrometers.
+ */
+export type DevicePosition = {
+    position_x_um: number;
+    position_y_um: number;
+    position_z_um?: (number | null);
+};
+
+/**
+ * Device with picture URL.
+ */
+export type DeviceWithPicture = {
+    comb_placed_id: number;
+    waveguide_name: string;
+    devices_set_connector_id: number;
+    input_port_position: DevicePosition;
+    output_port_position: DevicePosition;
+    geometry?: (DeviceGeometry | null);
+    picture_url?: (string | null);
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -35,6 +67,17 @@ export type ItemUpdate = {
     description?: (string | null);
 };
 
+/**
+ * Measurement configuration parameters.
+ */
+export type MeasurementParameters = {
+    laser_power_db: number;
+    sweep_speed: number;
+    start_wl_nm: number;
+    stop_wl_nm: number;
+    resolution_nm: number;
+};
+
 export type Message = {
     message: string;
 };
@@ -42,6 +85,24 @@ export type Message = {
 export type NewPassword = {
     token: string;
     new_password: string;
+};
+
+/**
+ * Request for multiple orders (multi-chip measurements).
+ */
+export type OrderBulkRequest = {
+    order_ids: Array<(number)>;
+};
+
+/**
+ * Order info response with picture URLs.
+ */
+export type OrderInfoResponse = {
+    order_id: number;
+    order_name?: (string | null);
+    devices: Array<DeviceWithPicture>;
+    measurement_parameters: MeasurementParameters;
+    calibrated_setup_id?: (number | null);
 };
 
 export type PrivateUserCreate = {
@@ -164,6 +225,30 @@ export type LoginRecoverPasswordHtmlContentData = {
 };
 
 export type LoginRecoverPasswordHtmlContentResponse = (string);
+
+export type OrdersMiraHealthCheckResponse = ({
+    [key: string]: unknown;
+});
+
+export type OrdersGetOrderData = {
+    orderId: number;
+};
+
+export type OrdersGetOrderResponse = (OrderInfoResponse);
+
+export type OrdersGetOrdersBulkData = {
+    requestBody: OrderBulkRequest;
+};
+
+export type OrdersGetOrdersBulkResponse = (Array<OrderInfoResponse>);
+
+export type OrdersGetDevicePictureData = {
+    combPlacedId: number;
+    orderId: number;
+    thumbnail?: boolean;
+};
+
+export type OrdersGetDevicePictureResponse = (unknown);
 
 export type PrivateCreateUserData = {
     requestBody: PrivateUserCreate;

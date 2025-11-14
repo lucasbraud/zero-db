@@ -46,6 +46,8 @@ services:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     build:
       context: ./backend
+      ssh:
+        - default
     networks:
       - traefik-public
       - default
@@ -116,6 +118,8 @@ services:
 
     build:
       context: ./backend
+      ssh:
+        - default
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public

@@ -1,0 +1,396 @@
+"""Core type definitions for measurement control system."""
+
+from dataclasses import dataclass
+from enum import Enum
+from typing import Generic, TypeVar
+from datetime import datetime
+
+T = TypeVar("T")
+E = TypeVar("E")
+
+
+# ============================================================================
+# Result Type (Railway-Oriented Programming)
+# ============================================================================
+
+
+@dataclass(frozen=True)
+class Ok(Generic[T]):
+    """Successful result containing a value."""
+
+    value: T
+
+    def is_ok(self) -> bool:
+        return True
+
+    def is_err(self) -> bool:
+        return False
+
+    def unwrap(self) -> T:
+        return self.value
+
+    def unwrap_or(self, default: T) -> T:
+        return self.value
+
+
+@dataclass(frozen=True)
+class Err(Generic[E]):
+    """Failed result containing an error."""
+
+    error: E
+
+    def is_ok(self) -> bool:
+        return False
+
+    def is_err(self) -> bool:
+        return True
+
+    def unwrap(self):
+        raise ValueError(f"Called unwrap() on Err: {self.error}")
+
+    def unwrap_or(self, default):
+        return default
+
+
+Result = Ok[T] | Err[E]
+
+
+# ============================================================================
+# Measurement Status and States
+# ============================================================================
+
+
+class MeasurementStatus(str, Enum):
+    """Measurement workflow states."""
+
+    IDLE = "idle"
+    CALIBRATING = "calibrating"
+    RUNNING = "running"
+    PAUSED = "paused"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
+class AlignmentPhase(str, Enum):
+    """Optical alignment phases."""
+
+    FIELD_SEARCH = "field_search"
+    PEAK_SEARCH_X = "peak_search_x"
+    PEAK_SEARCH_Y = "peak_search_y"
+    PEAK_SEARCH_Z = "peak_search_z"
+    CONVERGENCE = "convergence"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+class MeasurementOperation(str, Enum):
+    """Current operation types."""
+
+    INITIALIZING = "initializing"
+    CALIBRATING_EXFO = "calibrating_exfo"
+    CALIBRATING_CHIP_ANGLE = "calibrating_chip_angle"
+    MOVING_TO_DEVICE = "moving_to_device"
+    CHECKING_CONTACT = "checking_contact"
+    CHECKING_POWER = "checking_power"
+    ALIGNING_LEFT = "aligning_left"
+    ALIGNING_RIGHT = "aligning_right"
+    MEASURING = "measuring"
+    UPLOADING_DATA = "uploading_data"
+    COMPLETING = "completing"
+
+
+# ============================================================================
+# Progress Events
+# ============================================================================
+
+
+@dataclass(frozen=True)
+class ProgressEvent:
+    """Base class for all progress events."""
+
+    timestamp: float
+    event_type: str
+
+    @classmethod
+    def now(cls, **kwargs):
+        """Create event with current timestamp."""
+        return cls(timestamp=datetime.now().timestamp(), **kwargs)
+
+
+@dataclass(frozen=True)
+class MeasurementStarted(ProgressEvent):
+    """Measurement sequence started."""
+
+    event_type: str = "measurement_started"
+    order_id: str = ""
+    total_devices: int = 0
+
+
+@dataclass(frozen=True)
+class CalibrationStarted(ProgressEvent):
+    """EXFO calibration started."""
+
+    event_type: str = "calibration_started"
+
+
+@dataclass(frozen=True)
+class CalibrationCompleted(ProgressEvent):
+    """EXFO calibration completed."""
+
+    event_type: str = "calibration_completed"
+    calibrated_setup_id: int = 0
+
+
+@dataclass(frozen=True)
+class ChipAngleCalibrationStarted(ProgressEvent):
+    """Chip angle calibration started."""
+
+    event_type: str = "chip_angle_calibration_started"
+
+
+@dataclass(frozen=True)
+class ChipAngleCalibrationCompleted(ProgressEvent):
+    """Chip angle calibration completed."""
+
+    event_type: str = "chip_angle_calibration_completed"
+    left_stage_angle: float = 0.0
+    right_stage_angle: float = 0.0
+
+
+@dataclass(frozen=True)
+class DeviceStarted(ProgressEvent):
+    """Started processing a device."""
+
+    event_type: str = "device_started"
+    device_index: int = 0
+    device_name: str = ""
+    total_devices: int = 0
+
+
+@dataclass(frozen=True)
+class DeviceMoving(ProgressEvent):
+    """Moving to device position."""
+
+    event_type: str = "device_moving"
+    device_index: int = 0
+    device_name: str = ""
+
+
+@dataclass(frozen=True)
+class ContactChecking(ProgressEvent):
+    """Checking contact sensors."""
+
+    event_type: str = "contact_checking"
+    device_index: int = 0
+    stage: str = ""  # "left" or "right"
+
+
+@dataclass(frozen=True)
+class ContactDetected(ProgressEvent):
+    """Contact sensor triggered."""
+
+    event_type: str = "contact_detected"
+    device_index: int = 0
+    stage: str = ""
+    voltage: float = 0.0
+
+
+@dataclass(frozen=True)
+class PowerChecking(ProgressEvent):
+    """Checking optical power."""
+
+    event_type: str = "power_checking"
+    device_index: int = 0
+    stage: str = ""
+
+
+@dataclass(frozen=True)
+class PowerMeasured(ProgressEvent):
+    """Optical power measured."""
+
+    event_type: str = "power_measured"
+    device_index: int = 0
+    stage: str = ""
+    power_dbm: float = 0.0
+
+
+@dataclass(frozen=True)
+class AlignmentStarted(ProgressEvent):
+    """Optical alignment started."""
+
+    event_type: str = "alignment_started"
+    device_index: int = 0
+    stage: str = ""
+
+
+@dataclass(frozen=True)
+class AlignmentProgress(ProgressEvent):
+    """Optical alignment progress update."""
+
+    device_index: int
+    stage: str
+    phase: AlignmentPhase
+    power_dbm: float | None
+    event_type: str = "alignment_progress"
+
+
+@dataclass(frozen=True)
+class AlignmentCompleted(ProgressEvent):
+    """Optical alignment completed."""
+
+    device_index: int
+    stage: str
+    initial_power_dbm: float
+    final_power_dbm: float
+    improvement_db: float
+    event_type: str = "alignment_completed"
+
+
+@dataclass(frozen=True)
+class AlignmentFailed(ProgressEvent):
+    """Optical alignment failed."""
+
+    device_index: int
+    stage: str
+    error: str
+    event_type: str = "alignment_failed"
+
+
+@dataclass(frozen=True)
+class MeasurementExecuting(ProgressEvent):
+    """EXFO measurement executing."""
+
+    device_index: int
+    device_name: str
+    event_type: str = "measurement_executing"
+
+
+@dataclass(frozen=True)
+class MeasurementDataAcquired(ProgressEvent):
+    """EXFO measurement data acquired."""
+
+    device_index: int
+    device_name: str
+    num_points: int
+    event_type: str = "measurement_data_acquired"
+
+
+@dataclass(frozen=True)
+class MeasurementDataUploaded(ProgressEvent):
+    """Measurement data uploaded to database."""
+
+    device_index: int
+    device_name: str
+    measurement_id: int
+    event_type: str = "measurement_data_uploaded"
+
+
+@dataclass(frozen=True)
+class DeviceCompleted(ProgressEvent):
+    """Device measurement completed."""
+
+    device_index: int
+    device_name: str
+    event_type: str = "device_completed"
+
+
+@dataclass(frozen=True)
+class DeviceSkipped(ProgressEvent):
+    """Device skipped due to error."""
+
+    device_index: int
+    device_name: str
+    reason: str
+    event_type: str = "device_skipped"
+
+
+@dataclass(frozen=True)
+class MeasurementPaused(ProgressEvent):
+    """Measurement paused by user."""
+
+    device_index: int
+    event_type: str = "measurement_paused"
+
+
+@dataclass(frozen=True)
+class MeasurementResumed(ProgressEvent):
+    """Measurement resumed by user."""
+
+    device_index: int
+    event_type: str = "measurement_resumed"
+
+
+@dataclass(frozen=True)
+class MeasurementCancelled(ProgressEvent):
+    """Measurement cancelled by user."""
+
+    device_index: int
+    event_type: str = "measurement_cancelled"
+
+
+@dataclass(frozen=True)
+class MeasurementCompleted(ProgressEvent):
+    """Measurement sequence completed."""
+
+    total_devices: int
+    successful_devices: int
+    failed_devices: int
+    total_duration_seconds: float
+    event_type: str = "measurement_completed"
+
+
+@dataclass(frozen=True)
+class MeasurementFailed(ProgressEvent):
+    """Measurement sequence failed."""
+
+    error: str
+    device_index: int | None
+    event_type: str = "measurement_failed"
+
+
+@dataclass(frozen=True)
+class ErrorOccurred(ProgressEvent):
+    """Non-fatal error occurred."""
+
+    error: str
+    device_index: int | None
+    operation: str
+    event_type: str = "error_occurred"
+
+
+# ============================================================================
+# Hardware Status Types
+# ============================================================================
+
+
+@dataclass
+class HardwareConnection:
+    """Hardware connection status."""
+
+    name: str
+    connected: bool
+    address: str | None
+    last_error: str | None
+
+
+@dataclass
+class StagePosition:
+    """Stage axis position."""
+
+    axis_number: int
+    position_um: float
+    moving: bool
+    servo_on: bool
+
+
+@dataclass
+class HardwareStatus:
+    """Complete hardware status snapshot."""
+
+    suruga_seiki: HardwareConnection
+    exfo_ctp10: HardwareConnection
+    mira_database: HardwareConnection
+    stage_positions: list[StagePosition]
+    power_readings: dict[str, float]  # "left", "right"
+    timestamp: float

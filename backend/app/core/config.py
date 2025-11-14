@@ -94,6 +94,33 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
 
+    # MIRA Database Configuration
+    # Note: OAuth2 authentication is handled by api-auth package (no need for manual credentials)
+    MIRA_BASE_URL: str = "https://mira.enlightra.com"
+    MIRA_BASE_URL_DEV: str = "https://dev.mira.enlightra.com"
+    MIRA_CACHE_TTL_SECONDS: int = 1800
+    MIRA_MAX_ORDERS_PER_REQUEST: int = 4
+    MIRA_MEASURER_EMAIL: EmailStr = "operator@enlightra.com"
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def mira_enabled(self) -> bool:
+        """Check if MIRA integration is configured (always True with api-auth)"""
+        return True  # api-auth package handles authentication automatically
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def mira_base_url_for_env(self) -> str:
+        """Get MIRA base URL based on environment"""
+        if self.ENVIRONMENT == "production":
+            return self.MIRA_BASE_URL
+        else:
+            return self.MIRA_BASE_URL_DEV
+
+    # Hardware APIs
+    SURUGA_API_URL: str = "http://localhost:8001"
+    EXFO_API_URL: str = "http://localhost:8002"
+
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
             message = (

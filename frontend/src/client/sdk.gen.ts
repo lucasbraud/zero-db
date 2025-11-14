@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, OrdersMiraHealthCheckResponse, OrdersGetOrderData, OrdersGetOrderResponse, OrdersGetOrdersBulkData, OrdersGetOrdersBulkResponse, OrdersGetDevicePictureData, OrdersGetDevicePictureResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class ItemsService {
     /**
@@ -205,6 +205,131 @@ export class LoginService {
             url: '/api/v1/password-recovery-html-content/{email}',
             path: {
                 email: data.email
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class OrdersService {
+    /**
+     * Mira Health Check
+     * Check MIRA API connectivity.
+     *
+     * Returns:
+     * Health status
+     *
+     * Raises:
+     * HTTPException: If MIRA is unavailable
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static miraHealthCheck(): CancelablePromise<OrdersMiraHealthCheckResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/orders/health'
+        });
+    }
+    
+    /**
+     * Get Order
+     * Get order information with device list.
+     *
+     * Args:
+     * order_id: Order ID
+     * mira: MIRA client instance
+     *
+     * Returns:
+     * Order information with devices and picture URLs
+     *
+     * Raises:
+     * HTTPException: If order not found or API error
+     * @param data The data for the request.
+     * @param data.orderId
+     * @returns OrderInfoResponse Successful Response
+     * @throws ApiError
+     */
+    public static getOrder(data: OrdersGetOrderData): CancelablePromise<OrdersGetOrderResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/orders/{order_id}',
+            path: {
+                order_id: data.orderId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Orders Bulk
+     * Get multiple orders (for multi-chip measurements).
+     *
+     * Maximum 4 orders per request.
+     *
+     * Args:
+     * request: Bulk order request with order IDs
+     * current_user: Authenticated user
+     * mira: MIRA client instance
+     *
+     * Returns:
+     * List of order information
+     *
+     * Raises:
+     * HTTPException: If any order not found or API error
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns OrderInfoResponse Successful Response
+     * @throws ApiError
+     */
+    public static getOrdersBulk(data: OrdersGetOrdersBulkData): CancelablePromise<OrdersGetOrdersBulkResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/orders/bulk',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Device Picture
+     * Get device picture (PNG).
+     *
+     * Args:
+     * order_id: Order ID (for context/logging)
+     * comb_placed_id: Comb placed ID
+     * thumbnail: If True, return 256x256 thumbnail
+     * current_user: Authenticated user
+     * mira: MIRA client instance
+     *
+     * Returns:
+     * PNG image as bytes
+     *
+     * Raises:
+     * HTTPException: If image not found or API error
+     * @param data The data for the request.
+     * @param data.orderId
+     * @param data.combPlacedId
+     * @param data.thumbnail
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static getDevicePicture(data: OrdersGetDevicePictureData): CancelablePromise<OrdersGetDevicePictureResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/orders/{order_id}/devices/{comb_placed_id}/picture',
+            path: {
+                order_id: data.orderId,
+                comb_placed_id: data.combPlacedId
+            },
+            query: {
+                thumbnail: data.thumbnail
             },
             errors: {
                 422: 'Validation Error'

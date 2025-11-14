@@ -1,4 +1,4 @@
-import { Container, Image, Input, Text } from "@chakra-ui/react"
+import { Container, Flex, Heading, Image, Input, Text } from "@chakra-ui/react"
 import {
   createFileRoute,
   Link as RouterLink,
@@ -13,7 +13,7 @@ import { Field } from "@/components/ui/field"
 import { InputGroup } from "@/components/ui/input-group"
 import { PasswordInput } from "@/components/ui/password-input"
 import useAuth, { isLoggedIn } from "@/hooks/useAuth"
-import Logo from "/assets/images/fastapi-logo.svg"
+import Logo from "/assets/images/zerodb-logo.svg"
 import { emailPattern, passwordRules } from "../utils"
 
 export const Route = createFileRoute("/login")({
@@ -65,14 +65,17 @@ function Login() {
       gap={4}
       centerContent
     >
-      <Image
-        src={Logo}
-        alt="FastAPI logo"
-        height="auto"
-        maxW="2xs"
-        alignSelf="center"
-        mb={4}
-      />
+      <Flex direction="column" align="center" mb={4} gap={2}>
+        <Image
+          src={Logo}
+          alt="Zero-DB logo"
+          height="auto"
+          maxW="2xs"
+        />
+        <Heading size="2xl" color="ui.main" fontWeight="bold">
+          Zero DB
+        </Heading>
+      </Flex>
       <Field
         invalid={!!errors.username}
         errorText={errors.username?.message || !!error}
