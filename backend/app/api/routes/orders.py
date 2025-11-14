@@ -35,7 +35,7 @@ async def mira_health_check(
     if result.is_err():
         raise HTTPException(
             status_code=503,
-            detail=f"MIRA health check failed: {result.unwrap_err()}",
+            detail=f"MIRA health check failed: {result.error}",
         )
 
     return {
@@ -69,10 +69,10 @@ async def get_order(
     # Get order info from MIRA
     result = await mira.get_order_info(order_id)
     if result.is_err():
-        logger.error(f"Failed to get order {order_id}: {result.unwrap_err()}")
+        logger.error(f"Failed to get order {order_id}: {result.error}")
         raise HTTPException(
             status_code=404,
-            detail=f"Failed to get order information: {result.unwrap_err()}",
+            detail=f"Failed to get order information: {result.error}",
         )
 
     order_data = result.unwrap()
@@ -152,7 +152,7 @@ async def get_orders_bulk(
             continue
 
         if result.is_err():
-            errors.append(f"Order {order_id}: {result.unwrap_err()}")
+            errors.append(f"Order {order_id}: {result.error}")
             continue
 
         order_data = result.unwrap()
@@ -226,11 +226,11 @@ async def get_device_picture(
     if result.is_err():
         logger.error(
             f"Failed to get picture for device {comb_placed_id}: "
-            f"{result.unwrap_err()}"
+            f"{result.error}"
         )
         raise HTTPException(
             status_code=404,
-            detail=f"Failed to get device picture: {result.unwrap_err()}",
+            detail=f"Failed to get device picture: {result.error}",
         )
 
     image_bytes = result.unwrap()
