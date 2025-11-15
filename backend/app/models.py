@@ -162,7 +162,7 @@ class OrderInfoResponse(SQLModel):
     order_id: int
     order_name: str | None = None
     devices: list[DeviceWithPicture]
-    measurement_parameters: MeasurementParameters
+    measurement_parameters: MeasurementParameters | None = None
     calibrated_setup_id: int | None = None
 
 

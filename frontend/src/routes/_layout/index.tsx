@@ -47,13 +47,17 @@ function Dashboard() {
   } = useOrdersBulk(selectedOrderIds)
 
   const handleOrdersSelected = (orderIds: number[]) => {
+    const previousCount = selectedOrderIds.length
+    const newCount = orderIds.length
+    const addedCount = newCount - previousCount
+
     setSelectedOrderIds(orderIds)
 
-    // Only show toast if there are orders to load
-    if (orderIds.length > 0) {
+    // Only show toast when adding orders (not when removing)
+    if (addedCount > 0) {
       toaster.create({
-        title: "Loading orders",
-        description: `Fetching ${orderIds.length} order${orderIds.length > 1 ? "s" : ""} from MIRA...`,
+        title: "Loading order",
+        description: `Fetching order ${orderIds[orderIds.length - 1]} from MIRA...`,
         type: "info",
       })
     }
